@@ -3,8 +3,7 @@ const escapeCell = (value) => {
     return '';
   }
   const stringValue = String(value).replace(/"/g, '""');
-  if (stringValue.search(/([",
-])/g) >= 0) {
+  if (stringValue.search(/([",\n])/g) >= 0) {
     return `"${stringValue}"`;
   }
   return stringValue;
