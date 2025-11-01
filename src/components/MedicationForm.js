@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const initialState = {
   name: '',
@@ -39,92 +39,107 @@ const MedicationForm = ({ onSubmit }) => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.container}>
       <Text style={styles.title}>Cadastrar medicamento</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nome"
-        value={formData.name}
-        onChangeText={(text) => handleChange('name', text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Categoria"
-        value={formData.category}
-        onChangeText={(text) => handleChange('category', text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Fabricante"
-        value={formData.manufacturer}
-        onChangeText={(text) => handleChange('manufacturer', text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Validade (YYYY-MM-DD)"
-        value={formData.expiryDate}
-        onChangeText={(text) => handleChange('expiryDate', text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Quantidade"
-        keyboardType="numeric"
-        value={formData.quantity}
-        onChangeText={(text) => handleChange('quantity', text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Lote"
-        value={formData.lot}
-        onChangeText={(text) => handleChange('lot', text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Código de barras"
-        value={formData.barcode}
-        onChangeText={(text) => handleChange('barcode', text)}
-      />
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, styles.flexLarge]}
+          placeholder="Nome"
+          value={formData.name}
+          onChangeText={(text) => handleChange('name', text)}
+        />
+        <TextInput
+          style={[styles.input, styles.flexSmall]}
+          placeholder="Categoria"
+          value={formData.category}
+          onChangeText={(text) => handleChange('category', text)}
+        />
+      </View>
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, styles.flexLarge]}
+          placeholder="Fabricante"
+          value={formData.manufacturer}
+          onChangeText={(text) => handleChange('manufacturer', text)}
+        />
+        <TextInput
+          style={[styles.input, styles.flexSmall]}
+          placeholder="Validade (YYYY-MM-DD)"
+          value={formData.expiryDate}
+          onChangeText={(text) => handleChange('expiryDate', text)}
+        />
+      </View>
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, styles.flexSmall]}
+          placeholder="Quantidade"
+          keyboardType="numeric"
+          value={formData.quantity}
+          onChangeText={(text) => handleChange('quantity', text)}
+        />
+        <TextInput
+          style={[styles.input, styles.flexSmall]}
+          placeholder="Lote"
+          value={formData.lot}
+          onChangeText={(text) => handleChange('lot', text)}
+        />
+        <TextInput
+          style={[styles.input, styles.flexLarge]}
+          placeholder="Código de barras"
+          value={formData.barcode}
+          onChangeText={(text) => handleChange('barcode', text)}
+        />
+      </View>
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Salvar</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    padding: 16
-  },
-  content: {
-    paddingBottom: 24
+    marginBottom: 4
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#264653'
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 4
+  },
+  row: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -6
   },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 10,
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#e2e8f0'
+    borderColor: '#e2e8f0',
+    fontSize: 15,
+    color: '#1e293b',
+    marginHorizontal: 6,
+    marginBottom: 12
+  },
+  flexLarge: {
+    flexBasis: '58%'
+  },
+  flexSmall: {
+    flexBasis: '38%'
   },
   button: {
-    backgroundColor: '#2a9d8f',
+    backgroundColor: '#2563eb',
     paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8
+    borderRadius: 12,
+    alignItems: 'center'
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 16
   }
 });

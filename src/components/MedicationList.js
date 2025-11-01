@@ -1,25 +1,55 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { EmptyState } from './Layout';
 
 const MedicationItem = ({ item, isLowStock, isExpiringSoon }) => {
   return (
     <View style={[styles.card, (isLowStock || isExpiringSoon) && styles.alertCard]}>
       <View style={styles.header}>
         <Text style={styles.name}>{item.name}</Text>
-        {isLowStock && <Text style={[styles.tag, styles.lowStock]}>Baixo estoque</Text>}
-        {isExpiringSoon && <Text style={[styles.tag, styles.expiring]}>Vencimento próximo</Text>}
+        {isLowStock && (
+          <View style={[styles.tag, styles.lowStock]}>
+            <Ionicons name="trending-down" size={14} color="#fff" style={styles.tagIcon} />
+            <Text style={styles.tagText}>Baixo estoque</Text>
+          </View>
+        )}
+        {isExpiringSoon && (
+          <View style={[styles.tag, styles.expiring]}>
+            <Ionicons name="alarm-outline" size={14} color="#fff" style={styles.tagIcon} />
+            <Text style={styles.tagText}>Vencimento próximo</Text>
+          </View>
+        )}
       </View>
-      <Text style={styles.detail}>Categoria: {item.category || '—'}</Text>
-      <Text style={styles.detail}>Fabricante: {item.manufacturer || '—'}</Text>
-      <Text style={styles.detail}>Validade: {item.expiryDate || '—'}</Text>
-      <Text style={styles.detail}>Quantidade: {item.quantity}</Text>
-      <Text style={styles.detail}>Lote: {item.lot || '—'}</Text>
-      <Text style={styles.detail}>Código de barras: {item.barcode || '—'}</Text>
+      <View style={styles.metaRow}>
+        <Text style={styles.detailLabel}>Categoria</Text>
+        <Text style={styles.detailValue}>{item.category || '—'}</Text>
+      </View>
+      <View style={styles.metaRow}>
+        <Text style={styles.detailLabel}>Fabricante</Text>
+        <Text style={styles.detailValue}>{item.manufacturer || '—'}</Text>
+      </View>
+      <View style={styles.metaRow}>
+        <Text style={styles.detailLabel}>Validade</Text>
+        <Text style={[styles.detailValue, isExpiringSoon && styles.highlight]}>{item.expiryDate || '—'}</Text>
+      </View>
+      <View style={styles.metaRow}>
+        <Text style={styles.detailLabel}>Quantidade</Text>
+        <Text style={[styles.detailValue, isLowStock && styles.highlight]}>{item.quantity}</Text>
+      </View>
+      <View style={styles.metaRow}>
+        <Text style={styles.detailLabel}>Lote</Text>
+        <Text style={styles.detailValue}>{item.lot || '—'}</Text>
+      </View>
+      <View style={styles.metaRow}>
+        <Text style={styles.detailLabel}>Código de barras</Text>
+        <Text style={styles.detailValue}>{item.barcode || '—'}</Text>
+      </View>
     </View>
   );
 };
 
-const MedicationList = ({ data, lowStock, expiringSoon }) => {
+const MedicationList = ({ data, lowStock, expiringSoon, emptyTitle, emptyDescription }) => {
   return (
     <FlatList
       data={data}
@@ -31,7 +61,13 @@ const MedicationList = ({ data, lowStock, expiringSoon }) => {
           isExpiringSoon={expiringSoon.includes(item.id)}
         />
       )}
-      ListEmptyComponent={<Text style={styles.empty}>Nenhum medicamento cadastrado.</Text>}
+      ListEmptyComponent={
+        <EmptyState
+          title={emptyTitle || 'Nenhum medicamento encontrado'}
+          description={emptyDescription}
+          icon="medkit-outline"
+        />
+      }
       contentContainerStyle={data.length === 0 && styles.emptyContainer}
     />
   );
@@ -40,57 +76,72 @@ const MedicationList = ({ data, lowStock, expiringSoon }) => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2
   },
   alertCard: {
-    borderColor: '#f4a261'
+    borderColor: '#f97316'
   },
   header: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
-    marginBottom: 8
+    marginBottom: 12
   },
   name: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#264653',
+    fontWeight: '700',
+    color: '#0f172a',
     marginRight: 8
   },
   tag: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#fff',
-    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 999,
     marginRight: 6,
     marginTop: 4
   },
+  tagText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600'
+  },
+  tagIcon: {
+    marginRight: 4
+  },
   lowStock: {
-    backgroundColor: '#e63946'
+    backgroundColor: '#dc2626'
   },
   expiring: {
-    backgroundColor: '#f4a261'
+    backgroundColor: '#f97316'
   },
-  detail: {
-    fontSize: 14,
+  metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  detailLabel: {
     color: '#475569',
-    marginBottom: 4
+    fontSize: 14,
+    fontWeight: '500'
   },
-  empty: {
-    textAlign: 'center',
-    marginTop: 40,
-    color: '#64748b',
-    fontSize: 16
+  detailValue: {
+    color: '#0f172a',
+    fontSize: 14,
+    fontWeight: '600'
+  },
+  highlight: {
+    color: '#dc2626'
   },
   emptyContainer: {
     flexGrow: 1,

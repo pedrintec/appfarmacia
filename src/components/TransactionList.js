@@ -1,21 +1,48 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { EmptyState } from './Layout';
 
-const TransactionList = ({ data }) => {
+const TransactionList = ({ data, emptyTitle, emptyDescription }) => {
   return (
     <FlatList
       data={data}
       keyExtractor={(item) => item.id?.toString() || `${item.medicationId}-${item.timestamp}`}
       renderItem={({ item }) => (
         <View style={styles.card}>
-          <Text style={styles.name}>{item.medicationName}</Text>
-          <Text style={styles.detail}>Tipo: {item.type === 'entrada' ? 'Entrada' : 'Saída'}</Text>
-          <Text style={styles.detail}>Quantidade: {item.quantity}</Text>
-          <Text style={styles.detail}>Motivo: {item.reason || '—'}</Text>
-          <Text style={styles.detail}>Data/Hora: {new Date(item.timestamp).toLocaleString()}</Text>
+          <View style={styles.header}>
+            <Text style={styles.name}>{item.medicationName}</Text>
+            <View style={[styles.badge, item.type === 'entrada' ? styles.badgeIn : styles.badgeOut]}>
+              <Ionicons
+                name={item.type === 'entrada' ? 'arrow-down-circle-outline' : 'arrow-up-circle-outline'}
+                size={14}
+                color="#fff"
+                style={styles.badgeIcon}
+              />
+              <Text style={styles.badgeLabel}>{item.type === 'entrada' ? 'Entrada' : 'Saída'}</Text>
+            </View>
+          </View>
+          <View style={styles.metaRow}>
+            <Text style={styles.detailLabel}>Quantidade</Text>
+            <Text style={styles.detailValue}>{item.quantity}</Text>
+          </View>
+          <View style={styles.metaRow}>
+            <Text style={styles.detailLabel}>Motivo</Text>
+            <Text style={styles.detailValue}>{item.reason || '—'}</Text>
+          </View>
+          <View style={styles.metaRow}>
+            <Text style={styles.detailLabel}>Data/Hora</Text>
+            <Text style={styles.detailValue}>{new Date(item.timestamp).toLocaleString()}</Text>
+          </View>
         </View>
       )}
-      ListEmptyComponent={<Text style={styles.empty}>Nenhuma movimentação registrada.</Text>}
+      ListEmptyComponent={
+        <EmptyState
+          title={emptyTitle || 'Nenhuma movimentação registrada'}
+          description={emptyDescription}
+          icon="swap-horizontal-outline"
+        />
+      }
       contentContainerStyle={data.length === 0 && styles.emptyContainer}
     />
   );
@@ -24,32 +51,63 @@ const TransactionList = ({ data }) => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12
   },
   name: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#264653',
-    marginBottom: 6
+    fontWeight: '700',
+    color: '#0f172a'
   },
-  detail: {
-    fontSize: 14,
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999
+  },
+  badgeIn: {
+    backgroundColor: '#16a34a'
+  },
+  badgeOut: {
+    backgroundColor: '#dc2626'
+  },
+  badgeLabel: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 12
+  },
+  badgeIcon: {
+    marginRight: 4
+  },
+  metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  detailLabel: {
     color: '#475569',
-    marginBottom: 4
+    fontSize: 14,
+    fontWeight: '500'
   },
-  empty: {
-    textAlign: 'center',
-    marginTop: 40,
-    color: '#64748b',
-    fontSize: 16
+  detailValue: {
+    color: '#0f172a',
+    fontSize: 14,
+    fontWeight: '600'
   },
   emptyContainer: {
     flexGrow: 1,

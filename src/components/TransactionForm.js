@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 const TransactionForm = ({ medications, onSubmit }) => {
@@ -8,7 +8,10 @@ const TransactionForm = ({ medications, onSubmit }) => {
   const [quantity, setQuantity] = useState('0');
   const [reason, setReason] = useState('');
 
-  const medicationOptions = useMemo(() => medications.map((item) => ({ label: item.name, value: item.id })), [medications]);
+  const medicationOptions = useMemo(
+    () => medications.map((item) => ({ label: item.name, value: item.id })),
+    [medications]
+  );
 
   const handleSubmit = () => {
     if (medicationOptions.length === 0) {
@@ -39,11 +42,10 @@ const TransactionForm = ({ medications, onSubmit }) => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.container}>
       <Text style={styles.title}>Registrar movimentação</Text>
-      <View style={styles.fieldset}>
-        <Text style={styles.label}>Medicamento</Text>
-        <View style={styles.pickerWrapper}>
+      <View style={styles.row}>
+        <View style={[styles.pickerWrapper, styles.flexLarge]}>
           <Picker
             selectedValue={selectedMedication}
             onValueChange={(itemValue) => setSelectedMedication(itemValue)}
@@ -58,11 +60,7 @@ const TransactionForm = ({ medications, onSubmit }) => {
             )}
           </Picker>
         </View>
-      </View>
-
-      <View style={styles.fieldset}>
-        <Text style={styles.label}>Tipo de movimento</Text>
-        <View style={styles.pickerWrapper}>
+        <View style={[styles.pickerWrapper, styles.flexSmall]}>
           <Picker selectedValue={type} onValueChange={(itemValue) => setType(itemValue)}>
             <Picker.Item label="Entrada" value="entrada" />
             <Picker.Item label="Saída" value="saida" />
@@ -70,81 +68,88 @@ const TransactionForm = ({ medications, onSubmit }) => {
         </View>
       </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Quantidade"
-        keyboardType="numeric"
-        value={quantity}
-        onChangeText={setQuantity}
-      />
-      <TextInput
-        style={[styles.input, styles.multiline]}
-        placeholder="Motivo (compra, venda, perda...)"
-        value={reason}
-        onChangeText={setReason}
-        multiline
-        numberOfLines={3}
-      />
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, styles.flexSmall]}
+          placeholder="Quantidade"
+          keyboardType="numeric"
+          value={quantity}
+          onChangeText={setQuantity}
+        />
+        <TextInput
+          style={[styles.input, styles.flexLarge, styles.multiline]}
+          placeholder="Motivo (compra, venda, perda...)"
+          value={reason}
+          onChangeText={setReason}
+          multiline
+          numberOfLines={3}
+        />
+      </View>
+
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Registrar</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    padding: 16
-  },
-  content: {
-    paddingBottom: 24
+    marginBottom: 4
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#264653'
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 4
   },
-  fieldset: {
-    marginBottom: 12
-  },
-  label: {
-    fontWeight: '600',
-    marginBottom: 4,
-    color: '#264653'
+  row: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -6
   },
   pickerWrapper: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: '#fff'
+    marginHorizontal: 6,
+    marginBottom: 12
   },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 10,
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#e2e8f0'
+    borderColor: '#e2e8f0',
+    fontSize: 15,
+    color: '#1e293b',
+    marginHorizontal: 6,
+    marginBottom: 12
   },
   multiline: {
     height: 80,
     textAlignVertical: 'top'
   },
+  flexLarge: {
+    flexBasis: '58%'
+  },
+  flexSmall: {
+    flexBasis: '38%'
+  },
   button: {
-    backgroundColor: '#e76f51',
+    backgroundColor: '#e11d48',
     paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8
+    borderRadius: 12,
+    alignItems: 'center'
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 16
   }
 });

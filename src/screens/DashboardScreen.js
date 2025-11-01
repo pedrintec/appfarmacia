@@ -1,129 +1,176 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Screen, SectionCard, InfoCard, EmptyState } from '../components/Layout';
+import TransactionList from '../components/TransactionList';
 import { useInventory } from '../hooks/InventoryContext';
 
 const DashboardScreen = () => {
   const { medications, transactions, lowStock, expiringSoon, loading } = useInventory();
 
-  const entries = transactions.filter((item) => item.type === 'entrada').length;
-  const exits = transactions.filter((item) => item.type === 'saida').length;
+  const summary = useMemo(() => {
+    const entries = transactions.filter((item) => item.type === 'entrada');
+    const exits = transactions.filter((item) => item.type === 'saida');
+
+    const entryQty = entries.reduce((acc, item) => acc + item.quantity, 0);
+    const exitQty = exits.reduce((acc, item) => acc + item.quantity, 0);
+    const totalStock = medications.reduce((acc, item) => acc + item.quantity, 0);
+
+    return {
+      totalMedications: medications.length,
+      totalStock,
+      entries: entryQty,
+      exits: exitQty
+    };
+  }, [medications, transactions]);
+
+  const lowStockItems = useMemo(
+    () => medications.filter((item) => lowStock.includes(item.id)).slice(0, 3),
+    [medications, lowStock]
+  );
+
+  const expiringSoonItems = useMemo(
+    () => medications.filter((item) => expiringSoon.includes(item.id)).slice(0, 3),
+    [medications, expiringSoon]
+  );
+
+  const recentTransactions = useMemo(() => transactions.slice(0, 5), [transactions]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Resumo do estoque</Text>
-      {loading ? (
-        <Text style={styles.loading}>Carregando dados...</Text>
-      ) : (
-        <View style={styles.grid}>
-          <View style={[styles.card, styles.primary]}>
-            <Text style={styles.cardLabel}>Medicamentos cadastrados</Text>
-            <Text style={styles.cardValue}>{medications.length}</Text>
+    <Screen
+      title="Painel de controle"
+      subtitle="Acompanhe indicadores, alertas e as últimas movimentações do estoque"
+    >
+      <SectionCard title="Indicadores" description="Resumo em tempo real do estoque">
+        {loading ? (
+          <Text style={styles.loading}>Carregando dados...</Text>
+        ) : (
+          <View style={styles.statsGrid}>
+            <InfoCard
+              icon="medkit-outline"
+              title="Medicamentos"
+              value={summary.totalMedications}
+              tone="primary"
+            />
+            <InfoCard
+              icon="cube-outline"
+              title="Itens em estoque"
+              value={summary.totalStock}
+              tone="secondary"
+            />
+            <InfoCard
+              icon="arrow-down-circle"
+              title="Entradas"
+              value={summary.entries}
+              tone="success"
+            />
+            <InfoCard
+              icon="arrow-up-circle"
+              title="Saídas"
+              value={summary.exits}
+              tone="danger"
+            />
           </View>
-          <View style={[styles.card, styles.secondary]}>
-            <Text style={styles.cardLabel}>Movimentações (entradas)</Text>
-            <Text style={styles.cardValue}>{entries}</Text>
-          </View>
-          <View style={[styles.card, styles.tertiary]}>
-            <Text style={styles.cardLabel}>Movimentações (saídas)</Text>
-            <Text style={styles.cardValue}>{exits}</Text>
-          </View>
-        </View>
-      )}
+        )}
+      </SectionCard>
 
-      <View style={styles.alertSection}>
-        <Text style={styles.sectionTitle}>Alertas</Text>
-        <View style={styles.alertCard}>
-          <Text style={styles.alertTitle}>Baixo estoque</Text>
-          <Text style={styles.alertValue}>{lowStock.length}</Text>
-          <Text style={styles.alertDescription}>Medicamentos abaixo de 10 unidades.</Text>
+      <SectionCard
+        title="Alertas"
+        description="Medicamentos que exigem atenção imediata"
+      >
+        <View style={styles.alertRow}>
+          <View style={styles.alertColumn}>
+            <Text style={styles.alertTitle}>Baixo estoque</Text>
+            {lowStockItems.length === 0 ? (
+              <EmptyState
+                title="Tudo em ordem"
+                description="Nenhum medicamento abaixo de 10 unidades."
+                icon="shield-checkmark-outline"
+              />
+            ) : (
+              lowStockItems.map((item) => (
+                <View key={item.id} style={styles.alertCard}>
+                  <Text style={styles.alertName}>{item.name}</Text>
+                  <Text style={styles.alertMeta}>Quantidade atual: {item.quantity}</Text>
+                </View>
+              ))
+            )}
+          </View>
+          <View style={styles.alertColumn}>
+            <Text style={styles.alertTitle}>Vencimento próximo</Text>
+            {expiringSoonItems.length === 0 ? (
+              <EmptyState
+                title="Sem vencimentos próximos"
+                description="Nenhum medicamento vence nos próximos 30 dias."
+                icon="calendar-clear-outline"
+              />
+            ) : (
+              expiringSoonItems.map((item) => (
+                <View key={item.id} style={styles.alertCard}>
+                  <Text style={styles.alertName}>{item.name}</Text>
+                  <Text style={styles.alertMeta}>Validade: {item.expiryDate || '—'}</Text>
+                </View>
+              ))
+            )}
+          </View>
         </View>
-        <View style={styles.alertCard}>
-          <Text style={styles.alertTitle}>Vencimento próximo</Text>
-          <Text style={styles.alertValue}>{expiringSoon.length}</Text>
-          <Text style={styles.alertDescription}>Vencem nos próximos 30 dias.</Text>
-        </View>
-      </View>
-    </ScrollView>
+      </SectionCard>
+
+      <SectionCard
+        title="Últimas movimentações"
+        description="Histórico das cinco movimentações mais recentes"
+      >
+        <TransactionList
+          data={recentTransactions}
+          emptyTitle="Sem movimentações ainda"
+          emptyDescription="Registre uma entrada ou saída para começar a acompanhar o histórico."
+        />
+      </SectionCard>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc'
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 40
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#1e293b'
-  },
   loading: {
-    color: '#475569'
+    textAlign: 'center',
+    color: '#475569',
+    fontSize: 16,
+    paddingVertical: 16
   },
-  grid: {
+  statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between'
+    marginHorizontal: -6
   },
-  card: {
-    width: '48%',
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 16
+  alertRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -8
   },
-  primary: {
-    backgroundColor: '#2a9d8f'
+  alertColumn: {
+    flex: 1,
+    minWidth: 160,
+    paddingHorizontal: 8
   },
-  secondary: {
-    backgroundColor: '#264653'
-  },
-  tertiary: {
-    backgroundColor: '#e76f51'
-  },
-  cardLabel: {
-    color: '#fff',
-    fontSize: 14,
-    marginBottom: 8
-  },
-  cardValue: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: 'bold'
-  },
-  alertSection: {
-    marginTop: 12
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#1e293b'
+  alertTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 12
   },
   alertCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f8fafc',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#e2e8f0'
   },
-  alertTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0f172a'
+  alertName: {
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 4
   },
-  alertValue: {
-    fontSize: 32,
-    color: '#e63946',
-    fontWeight: 'bold',
-    marginVertical: 6
-  },
-  alertDescription: {
+  alertMeta: {
     color: '#475569'
   }
 });
