@@ -7,7 +7,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node tests/csvExport.test.js"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^6.6.0",
