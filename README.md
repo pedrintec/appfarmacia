@@ -32,6 +32,30 @@ Aplicativo simples para controle de estoque de medicamentos utilizando React Nat
 
 3. Use o aplicativo Expo Go (Android/iOS) para ler o QR code exibido no terminal ou abra o emulador configurado no seu computador.
 
+### Caso veja o erro `expo não é reconhecido`
+
+Esse erro normalmente indica que a instalação das dependências falhou, por isso o binário do Expo não foi criado em `node_modules/.bin`. Siga os passos abaixo no terminal aberto na pasta `appfarmacia`:
+
+1. Apague qualquer instalação parcial que possa ter restado:
+
+   ```bash
+   rm -rf node_modules package-lock.json
+   ```
+
+2. Limpe o cache do npm (opcional, mas recomendado quando o `npm install` falha):
+
+   ```bash
+   npm cache clean --force
+   ```
+
+3. Reinstale as dependências com as versões atualizadas do projeto:
+
+   ```bash
+   npm install
+   ```
+
+Com a instalação concluída, rode novamente `npx expo start`. O comando deve localizar o executável `expo` dentro de `node_modules/.bin` e iniciar o bundler normalmente.
+
 ## Executando e testando no Visual Studio Code
 
 1. Abra a pasta `appfarmacia` no VS Code.
